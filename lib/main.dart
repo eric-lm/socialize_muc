@@ -37,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _pageindex = 0;
 
-  final List<Widget> _pages = const <Widget>[
+  final List<Widget> _pages = <Widget>[
     HomePage(),
     EventsPage(),
     JournalPage(),
