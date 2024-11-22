@@ -29,13 +29,6 @@
             {
               "client_id": "504457843646-gv18t43uq14bdbpnfo45dje1rjlcegtk.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "504457843646-russ4qsfqunif0jotvj2l7o3k9qr2pbp.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.hackatum.socialize.socialize"
-              }
             }
           ]
         }
