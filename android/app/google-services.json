@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "504457843646",
+    "project_id": "socialize-muc",
+    "storage_bucket": "socialize-muc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:504457843646:android:847d58a441af16e2df9fef",
+        "android_client_info": {
+          "package_name": "com.hackatum.socialize"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "504457843646-gv18t43uq14bdbpnfo45dje1rjlcegtk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9B0UR6blkmt9jSITAo3h_8_BHbhirQIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "504457843646-gv18t43uq14bdbpnfo45dje1rjlcegtk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
