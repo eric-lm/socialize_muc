@@ -17,14 +17,12 @@ void main() async {
 
   var db = FirebaseFirestore.instance;
 
-  FirebaseAuth.instance
-      .authStateChanges()
-      .listen((User? user) async {
+  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
     if (user != null) {
       var userRef = db.collection("user").doc(user.uid);
       print(userRef);
       var userDoc = await userRef.get();
-      
+
       if (userDoc.exists) {
         // TODO: use user data
       } else {
@@ -48,7 +46,8 @@ class SocializeMucApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const AuthGate(nestedPage: const MyHomePage(title: 'Socialize MUC')),
+      home:
+          const AuthGate(nestedPage: const MyHomePage(title: 'Socialize MUC')),
     );
   }
 }
