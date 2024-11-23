@@ -3,6 +3,7 @@ import 'package:socialize/models/event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:socialize/models/event_participation.dart';
+import 'package:socialize/pages/events_page.dart';
 
 class EventDetailPage extends StatelessWidget {
   const EventDetailPage({required this.event});
@@ -113,33 +114,53 @@ class EventDetailPage extends StatelessWidget {
               height: 16,
             ),
             Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  DocumentReference userRef = FirebaseFirestore.instance
-                      .collection("user")
-                      .doc(FirebaseAuth.instance.currentUser!.uid);
-                  DocumentReference eventRef = FirebaseFirestore.instance
-                      .collection("event")
-                      .doc(event.id);
-                  print(userRef);
-                  print(eventRef);
-                  await FirebaseFirestore.instance
-                      .collection('event_participation')
-                      .add((EventParticipation(user: userRef, event: eventRef))
-                          .toFirestore());
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Text(
-                  "Accept Invitation",
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
+                child: FutureBuilder(
+                    future: isUserAssigned(
+                        event, FirebaseAuth.instance.currentUser!),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text("Error: ${snapshot.error}"));
+                      } else if (!snapshot.hasData) {
+                        return const Center(child: Text("No Organizer found"));
+                      } else {
+                        if (snapshot.data!) {
+                          return Text('You cannot deregister from an event');
+                        } else {
+                          return ElevatedButton(
+                            onPressed: () async {
+                              DocumentReference userRef = FirebaseFirestore
+                                  .instance
+                                  .collection("user")
+                                  .doc(FirebaseAuth.instance.currentUser!.uid);
+                              DocumentReference eventRef = FirebaseFirestore
+                                  .instance
+                                  .collection("event")
+                                  .doc(event.id);
+                              print(userRef);
+                              print(eventRef);
+                              await FirebaseFirestore.instance
+                                  .collection('event_participation')
+                                  .add((EventParticipation(
+                                          user: userRef, event: eventRef))
+                                      .toFirestore());
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: Text(
+                              "Accept Invitation",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          );
+                        }
+                      }
+                    })),
           ],
         ),
       ),
