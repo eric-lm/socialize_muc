@@ -210,9 +210,9 @@ class ProgressChallengesPage extends StatelessWidget {
 
       if (matchingProgress == null) return 0.0;
 
-      // Get progress value
+      // Get progress value and convert to double
       final progress = matchingProgress['progress'] as num?;
-      return (progress ?? 0.0).toDouble();
+      return (progress ?? 0).toDouble(); // Explicit conversion to double
     } catch (e) {
       print('ERROR: Error fetching progress: $e');
       return 0.0;
