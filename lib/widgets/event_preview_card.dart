@@ -33,7 +33,7 @@ class EventPreviewCard extends StatelessWidget {
     return PreviewCard(
       width: width,
       height: height,
-      destinationPage: EventsPage(title: 'Events', events: events),
+      destinationPage: EventsPage(title: 'Events', initialEvents: events),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: nextEvent != null
@@ -78,7 +78,7 @@ class EventPreviewCard extends StatelessWidget {
                       Icon(Icons.people, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        '${nextEvent.numParticipants}/${nextEvent.minNumParticipants}',
+                        '${nextEvent.numParticipants}/${nextEvent.maxParticipants}',
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                       const Spacer(),

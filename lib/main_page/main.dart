@@ -38,7 +38,6 @@ void main() async {
     if (user != null) {
       var userRef = db.collection("user").doc(user.uid);
 
-      print(userRef);
       var userDoc = await userRef.get();
 
       if (userDoc.exists) {
@@ -56,7 +55,6 @@ void main() async {
                 SetOptions(
                     merge:
                         true)); // merge: true ensures that only the display_name field is updated, not overwriting the entire document
-            print("Display name updated successfully.");
           } catch (e) {
             print("Error updating display name: $e");
           }
@@ -175,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
       HomePage(events: events, challenges: challenges),
       EventsPage(
         title: 'Events',
-        events: events, // Pass the events as a Future
+        initialEvents: events, // Pass the events as a Future
       ),
       JournalPage(
         title: 'Journaling',
