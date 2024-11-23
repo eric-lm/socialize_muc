@@ -1,3 +1,4 @@
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -48,10 +49,7 @@ class ProfilePage extends StatelessWidget {
                   child: Text('Edit Profile'),
                 ),
                 SizedBox(width: 16),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: Text('Logout'),
-                ),
+                SignOutButton(),
               ],
             ),
             SizedBox(height: 32),

@@ -1,10 +1,38 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:socialize/main_page/auth_gate.dart';
+import '../firebase_options.dart';
 import '../pages/homepage.dart';
 import '../pages/events_page.dart';
 import '../pages/journal_page.dart';
 import '../pages/profile_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  var db = FirebaseFirestore.instance;
+
+  FirebaseAuth.instance
+      .authStateChanges()
+      .listen((User? user) async {
+    if (user != null) {
+      var userRef = db.collection("user").doc(user.uid);
+      print(userRef);
+      var userDoc = await userRef.get();
+      
+      if (userDoc.exists) {
+        // TODO: use user data
+      } else {
+        await userRef.set({"display_name": user.displayName ?? user.email});
+      }
+    }
+  });
+
   runApp(const SocializeMucApp());
 }
 
@@ -20,7 +48,7 @@ class SocializeMucApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Socialize MUC'),
+      home: const AuthGate(nestedPage: const MyHomePage(title: 'Socialize MUC')),
     );
   }
 }
