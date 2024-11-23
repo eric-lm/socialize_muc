@@ -6,6 +6,7 @@ import 'package:socialize/pages/event_detail_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:socialize/pages/event_creation_page.dart';
 import 'dart:io';
+import 'dart:core';
 
 class EventsPage extends StatefulWidget {
   final String title;
@@ -31,9 +32,19 @@ class _EventsPageState extends State<EventsPage> {
     try {
       var eventSnapshot =
           await FirebaseFirestore.instance.collection('event').get();
-      return eventSnapshot.docs
+      List<Event> events = eventSnapshot.docs
           .map((doc) => Event.fromFirestore(doc, null))
           .toList();
+
+      events =
+          events.where((event) => event.time.isAfter(DateTime.now())).toList();
+
+      events.sort((e1, e2) {
+        return e1.time.compareTo(e2.time);
+      });
+      events = await sortEvents(events);
+
+      return events;
     } catch (e) {
       print("Error loading events: $e");
       return List.empty();
@@ -41,17 +52,12 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   listenToChangeOfCategories() {
-    print('listening just started......');
-    // collection we are going to listen
     final collection = FirebaseFirestore.instance.collection('event');
-    // start to listen
     final listener = collection.snapshots().listen((change) {
       if (change.docChanges.isNotEmpty) {
-        // do whatever you want to do
         return _refreshEvents();
       }
     });
-    // if listener implemented its job then cancel
     listener.onDone(() {
       listener.cancel();
     });
@@ -137,10 +143,7 @@ class _EventsPageState extends State<EventsPage> {
                                     })
                               ],
                             ),
-                            // Event Title
                             SizedBox(height: 8),
-
-                            // Event Time and Place
                             Row(
                               children: [
                                 Icon(Icons.calendar_today,
@@ -255,7 +258,6 @@ Future<bool> isUserAssigned(Event event, User user) async {
 
   final querySnapshot = await FirebaseFirestore.instance
       .collection('event_participation')
-      //.doc('d8Ae5SmOu1D2YRMdhuaD')
       .where('user', isEqualTo: userRef)
       .get();
 
@@ -275,4 +277,34 @@ Future<int> _getParticipantCount(Event event) async {
     print("Error fetching participant count: $e");
     return 0;
   }
+}
+
+Future<List<Event>> sortEvents(List<Event> events) async {
+  List<Map<String, dynamic>> eventsWithAssignmentStatus = [];
+
+  User user = FirebaseAuth.instance.currentUser!;
+
+  for (var event in events) {
+    bool isAssigned = await isUserAssigned(event, user);
+    eventsWithAssignmentStatus.add({
+      'event': event,
+      'isAssigned': isAssigned,
+    });
+  }
+
+  eventsWithAssignmentStatus.sort((a, b) {
+    bool assigned1 = a['isAssigned'];
+    bool assigned2 = b['isAssigned'];
+
+    if (assigned1 == assigned2) {
+      return 0;
+    }
+    return assigned1 ? -1 : 1;
+  });
+
+  List<Event> sortedEvents = eventsWithAssignmentStatus
+      .map((entry) => entry['event'] as Event)
+      .toList();
+
+  return sortedEvents;
 }

@@ -170,14 +170,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Create pages using the events
     return [
-      HomePage(events: events, challenges: challenges),
+      HomePage(challenges: challenges),
       EventsPage(
         title: 'Events',
         initialEvents: events, // Pass the events as a Future
       ),
-      JournalPage(
-        title: 'Journaling',
-      ),
+      JournalPage(),
       ProfilePage(
         title: 'Profile',
       ),

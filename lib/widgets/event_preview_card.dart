@@ -41,7 +41,7 @@ class EventPreviewCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Next Event',
+                    'Your Next Event',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -57,14 +57,9 @@ class EventPreviewCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    nextEvent.description,
-                    style: const TextStyle(fontSize: 16),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  SizedBox(
+                    height: 8,
                   ),
-                  const Spacer(),
                   Row(
                     children: [
                       Icon(Icons.access_time,
