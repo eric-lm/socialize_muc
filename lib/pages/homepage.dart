@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socialize/models/challenge.dart';
 import 'package:socialize/models/event.dart';
 import 'package:socialize/widgets/event_preview_card.dart';
-import 'package:socialize/models/event.dart';
+import 'package:socialize/widgets/challenge_preview_card.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key, required this.events, required this.challenges});
@@ -47,8 +47,26 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(16.0),
                   child: EventPreviewCard(
                     events: widget.events,
-                    width: constraints.maxWidth, // 90% of screen width
-                    height: 200, // Fixed height
+                    width: constraints.maxWidth,
+                    height: 200,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ChallengePreviewCard(
+                    challenges: widget.challenges,
+                    width: constraints.maxWidth,
+                    height: 200,
+                    progressTrue: true,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ChallengePreviewCard(
+                    challenges: widget.challenges,
+                    width: constraints.maxWidth,
+                    height: 200,
+                    progressTrue: false,
                   ),
                 ),
                 // Add other widgets here
