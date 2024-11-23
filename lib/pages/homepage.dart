@@ -24,16 +24,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    print('HomePage initialized');
-    _initializeDummyData();
-  }
-
-  Future<void> _initializeDummyData() async {
-    try {
-      await DummyDataInitializer.initializeDummyEvents();
-    } catch (e) {
-      print('Error initializing dummy data: $e');
-    }
   }
 
   @override

@@ -32,6 +32,38 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  var db = FirebaseFirestore.instance;
+
+  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+    if (user != null) {
+      var userRef = db.collection("user").doc(user.uid);
+
+      var userDoc = await userRef.get();
+
+      if (userDoc.exists) {
+        // TODO: use user data
+      } else {
+        if (user.displayName == null) {
+          String displayName = funnyUsernames[Random().nextInt(10)];
+          await user.updateDisplayName(displayName);
+          try {
+            // Set the display_name in the document
+            await userRef.set(
+                {
+                  'display_name': displayName,
+                },
+                SetOptions(
+                    merge:
+                        true)); // merge: true ensures that only the display_name field is updated, not overwriting the entire document
+          } catch (e) {
+            print("Error updating display name: $e");
+          }
+        }
+        await userRef.set({"display_name": user.displayName});
+      }
+    }
+  });
+
   runApp(const SocializeMucApp());
 }
 
@@ -141,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
       HomePage(events: events, challenges: challenges),
       EventsPage(
         title: 'Events',
-        events: events, // Pass the events as a Future
+        initialEvents: events, // Pass the events as a Future
       ),
       JournalPage(
         title: 'Journaling',

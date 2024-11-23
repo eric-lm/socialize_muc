@@ -33,7 +33,7 @@ class EventPreviewCard extends StatelessWidget {
     return PreviewCard(
       width: width,
       height: height,
-      destinationPage: EventsPage(title: 'Events', events: events),
+      destinationPage: EventsPage(title: 'Events', initialEvents: events),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: nextEvent != null

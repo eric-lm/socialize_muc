@@ -19,16 +19,13 @@ class Challenge {
     required this.isUserCompletable,
     required this.type,
     this.level,
-  }) {
-    print('Creating Challenge: id=$id, title=$title');
-  }
+  }) {}
 
   factory Challenge.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
     SnapshotOptions? options,
   ) {
     try {
-      print('Converting Firestore doc ${snapshot.id} to Challenge');
       final data = snapshot.data();
 
       if (data == null) {

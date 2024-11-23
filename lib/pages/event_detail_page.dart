@@ -126,7 +126,37 @@ class EventDetailPage extends StatelessWidget {
                         return const Center(child: Text("No Organizer found"));
                       } else {
                         if (snapshot.data!) {
-                          return Text('You cannot deregister from an event');
+                          return ElevatedButton(
+                              onPressed: () async {
+                                DocumentReference userRef = FirebaseFirestore
+                                    .instance
+                                    .collection('user')
+                                    .doc(
+                                        FirebaseAuth.instance.currentUser!.uid);
+                                DocumentReference eventRef = FirebaseFirestore
+                                    .instance
+                                    .collection("event")
+                                    .doc(event.id);
+                                QuerySnapshot snapshot = await FirebaseFirestore
+                                    .instance
+                                    .collection('event_participation')
+                                    .where('user', isEqualTo: userRef)
+                                    .where('event', isEqualTo: eventRef)
+                                    .get();
+                                if (snapshot.docs.isNotEmpty) {
+                                  // If there are matching documents, delete them
+                                  for (var doc in snapshot.docs) {
+                                    await doc.reference.delete();
+                                  }
+                                  print(
+                                      "Event participation deleted successfully.");
+                                } else {
+                                  print(
+                                      "No matching event participation found.");
+                                }
+                                Navigator.pop(context, true);
+                              },
+                              child: Text('Deregister from event'));
                         } else {
                           return ElevatedButton(
                             onPressed: () async {
@@ -145,7 +175,8 @@ class EventDetailPage extends StatelessWidget {
                                   .add((EventParticipation(
                                           user: userRef, event: eventRef))
                                       .toFirestore());
-                              Navigator.pop(context);
+
+                              Navigator.pop(context, true);
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
