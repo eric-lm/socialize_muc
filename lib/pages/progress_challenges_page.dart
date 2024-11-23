@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/challenge.dart';
 import '../app/app_active_user.dart';
+import 'dart:math' show min;
+import 'package:cloud_functions/cloud_functions.dart' as functions;
 
 class PathPainter extends CustomPainter {
   @override
@@ -219,6 +221,78 @@ class ProgressChallengesPage extends StatelessWidget {
     }
   }
 
+  Future<bool> _updateChallengeProgressFunction(
+      String challengeId, double progress) async {
+    try {
+      // Debug print before call
+      print('Attempting to call userChallengeUpdate with:');
+      print('challengeId: $challengeId');
+      print('progress: $progress');
+
+      // Verify user is authenticated
+      if (FirebaseAuth.instance.currentUser == null) {
+        print('ERROR: User not authenticated');
+        return false;
+      }
+
+      final callable = functions.FirebaseFunctions.instance
+          .httpsCallable('userChallengeUpdate');
+
+      final result = await callable.call({
+        'challengeId': challengeId,
+        'progress': progress.toString(),
+      });
+
+      // Debug print response
+      print('Function response: ${result.data}');
+
+      final response = result.data as Map<String, dynamic>;
+      if (response['Error'] != '') {
+        print('ERROR from function: ${response['Error']}');
+      }
+      return response['WasCompleted'] as bool;
+    } catch (e) {
+      print('ERROR: Failed to call userChallengeUpdate: $e');
+      // Print full stack trace
+      print(StackTrace.current);
+      return false;
+    }
+  }
+
+  Future<void> _incrementChallengeProgress(
+      String challengeId, Challenge challenge) async {
+    try {
+      double currentProgress = await _getChallengeProgress(challengeId);
+      print('maxProgress: ${challenge.maxProgress}');
+      if (currentProgress >= challenge.maxProgress) return;
+
+      double newProgress = min((currentProgress + 1), 1.0);
+      final success =
+          await _updateChallengeProgressFunction(challengeId, newProgress);
+
+      if (!success) {
+        print('ERROR: Failed to update challenge progress');
+      } else {
+        print('Successfully updated challenge progress');
+      }
+    } catch (e) {
+      print('ERROR: Error incrementing progress: $e');
+    }
+  }
+
+  Future<void> _setChallengeProgress(
+      String challengeId, double progress) async {
+    try {
+      final success =
+          await _updateChallengeProgressFunction(challengeId, progress);
+      if (!success) {
+        print('ERROR: Failed to set challenge progress');
+      }
+    } catch (e) {
+      print('ERROR: Error setting progress: $e');
+    }
+  }
+
   Widget _buildChallengeCard(Challenge challenge) {
     Color iconColor = challenge.type == Type.WEEKLY
         ? Colors.blue
@@ -289,9 +363,8 @@ class ProgressChallengesPage extends StatelessWidget {
                         color: iconColor,
                         size: 24,
                       ),
-                      onPressed: () {
-                        // Add your button action here
-                      },
+                      onPressed: () =>
+                          _incrementChallengeProgress(challenge.id, challenge),
                     ),
                   ),
                 ],
