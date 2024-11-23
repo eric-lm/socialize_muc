@@ -70,7 +70,7 @@ class EventPreviewCard extends StatelessWidget {
                           size: 16, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
-                        '${nextEvent.time.day}/${nextEvent.time.month} ${nextEvent.time.hour}:${nextEvent.time.minute.toString().padLeft(2, '0')}',
+                        '${nextEvent.time.day}/${nextEvent.time.month} at ${nextEvent.time.hour}:${nextEvent.time.minute.toString().padLeft(2, '0')}',
                         style: TextStyle(color: Colors.grey[400]),
                       ),
                       const SizedBox(width: 16),
