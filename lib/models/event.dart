@@ -47,7 +47,6 @@ class Event {
       'time': Timestamp.fromDate(time),
       'place': place,
       'organizer': organizer,
-      'num_participants': numParticipants,
       'max_participants': maxParticipants,
       'description': description,
       'tags': tags,
