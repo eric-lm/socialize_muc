@@ -7,7 +7,7 @@ class Event {
   final String place;
   final DocumentReference organizer;
   final int numParticipants;
-  final int minNumParticipants;
+  final int maxParticipants;
   final String description;
   final List<String> tags;
 
@@ -18,7 +18,7 @@ class Event {
     required this.place,
     required this.organizer,
     required this.numParticipants,
-    required this.minNumParticipants,
+    required this.maxParticipants,
     required this.description,
     required this.tags,
   });
@@ -34,8 +34,8 @@ class Event {
       time: (data?['time'] as Timestamp).toDate(),
       place: data?['place'],
       organizer: data?['organizer'],
-      numParticipants: data?['num_participants'],
-      minNumParticipants: data?['min_num_participants'],
+      numParticipants: data?['num_participants'] ?? 0,
+      maxParticipants: data?['max_participants'] ?? 0,
       description: data?['description'],
       tags: List<String>.from(data?['tags']),
     );
@@ -47,8 +47,7 @@ class Event {
       'time': Timestamp.fromDate(time),
       'place': place,
       'organizer': organizer,
-      'num_participants': numParticipants,
-      'min_num_participants': minNumParticipants,
+      'max_participants': maxParticipants,
       'description': description,
       'tags': tags,
     };

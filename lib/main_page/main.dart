@@ -9,6 +9,9 @@ import '../pages/events_page.dart';
 import '../pages/journal_page.dart';
 import '../pages/profile_page.dart';
 import 'dart:math';
+import 'package:socialize/models/event.dart';
+import 'package:socialize/models/challenge.dart';
+import 'package:socialize/main_page/db_fetching.dart';
 
 List<String> funnyUsernames = [
   "BananaInPajamas",
@@ -34,14 +37,27 @@ void main() async {
   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
     if (user != null) {
       var userRef = db.collection("user").doc(user.uid);
-      print(userRef);
+
       var userDoc = await userRef.get();
 
       if (userDoc.exists) {
         // TODO: use user data
       } else {
         if (user.displayName == null) {
-          await user.updateDisplayName(funnyUsernames[Random().nextInt(10)]);
+          String displayName = funnyUsernames[Random().nextInt(10)];
+          await user.updateDisplayName(displayName);
+          try {
+            // Set the display_name in the document
+            await userRef.set(
+                {
+                  'display_name': displayName,
+                },
+                SetOptions(
+                    merge:
+                        true)); // merge: true ensures that only the display_name field is updated, not overwriting the entire document
+          } catch (e) {
+            print("Error updating display name: $e");
+          }
         }
         await userRef.set({"display_name": user.displayName});
       }
@@ -81,18 +97,17 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _pageindex = 0;
 
-  final List<Widget> _pages = <Widget>[
-    HomePage(),
-    EventsPage(
-      title: 'Events',
-    ),
-    JournalPage(
-      title: 'Journaling',
-    ),
-    ProfilePage(
-      title: 'Profile',
-    )
-  ];
+  Future<List<Event>>? future_events;
+  Future<List<Challenge>>? future_challenges;
+  late Future<List<Widget>> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    future_events = getEvents();
+    future_challenges = getChallenges();
+    _pages = getPages();
+  }
 
   void _onPageSelected(int index) {
     setState(() {
@@ -103,7 +118,19 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_pageindex],
+      body: FutureBuilder(
+          future: _pages,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text("No events found"));
+            } else {
+              return snapshot.data![_pageindex];
+            }
+          }),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -134,5 +161,26 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: _onPageSelected,
       ),
     );
+  }
+
+  Future<List<Widget>> getPages() async {
+    // Fetch events asynchronously
+    List<Event> events = await getEvents();
+    List<Challenge> challenges = await getChallenges();
+
+    // Create pages using the events
+    return [
+      HomePage(events: events, challenges: challenges),
+      EventsPage(
+        title: 'Events',
+        initialEvents: events, // Pass the events as a Future
+      ),
+      JournalPage(
+        title: 'Journaling',
+      ),
+      ProfilePage(
+        title: 'Profile',
+      ),
+    ];
   }
 }
