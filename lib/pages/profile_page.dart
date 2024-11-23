@@ -24,18 +24,18 @@ class _ProfilePageState extends State<ProfilePage> {
   String? username = FirebaseAuth.instance.currentUser!.displayName;
 
   final Map<String, AchievementData> achievements = {
-    "STARTER": AchievementData(name: "Starter", imagePath: "lvl1_false.png", icon: Icons.abc),
-    /*"THE_JOURNEY": false,
-    "HI_FOLKS": false,
-    "REGULAR": false,
-    "PROFESSIONAL_SOCIALIZER": false,
-    "HOST": false,
-    "REAL_ORGANIZER": false,
-    "BARTENDER": false,
-    "LOCAL_HERO": false,
-    "ON_FIRE": false,
-    "UNSTOPPABLE": false,
-    "VERIFIED": false,*/
+    "STARTER": AchievementData(name: "Starter", imagePath: "lvl1_true.png", icon: Icons.keyboard_double_arrow_up),
+    "THE_JOURNEY": AchievementData(name: "The Journey", imagePath: "lvl2_false.png", icon: Icons.keyboard_double_arrow_up),
+    "HI_FOLKS": AchievementData(name: "Hi Folks!", imagePath: "lvl1_false.png", icon: Icons.calendar_month),
+    "REGULAR": AchievementData(name: "Regular", imagePath: "lvl2_false.png", icon: Icons.calendar_month),
+    "PROFESSIONAL_SOCIALIZER": AchievementData(name: "Professional Socializer", imagePath: "lvl3_false.png", icon: Icons.calendar_month),
+    "HOST": AchievementData(name: "Host", imagePath: "lvl1_false.png", icon: Icons.cottage),
+    "ORGANIZING_TALENT": AchievementData(name: "Organizing Talent", imagePath: "lvl2_false.png", icon: Icons.cottage),
+    "BARTENDER": AchievementData(name: "Bartender", imagePath: "lvl3_false.png", icon: Icons.cottage),
+    "LOCAL_HERO": AchievementData(name: "Local Hero", imagePath: "lvl4_false.png", icon: Icons.cottage),
+    "ON_FIRE": AchievementData(name: "On FIRE", imagePath: "lvl1_false.png", icon: Icons.local_fire_department),
+    "UNSTOPPABLE": AchievementData(name: "UNSTOPPABLE", imagePath: "lvl2_false.png", icon: Icons.local_fire_department),
+    "VERIFIED": AchievementData(name: "Verified", imagePath: "lvl4_false.png", icon: Icons.verified_user),
   };
 
   @override
@@ -85,11 +85,16 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             SizedBox(height: 32),
 
-            GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            const Text("Achievements", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+            SizedBox(height: 16),
+
+            Expanded(
+              child:
+              GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3, // 3 columns
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
-            ), itemCount: achievements.length, itemBuilder: (context, index) {
+            ), itemCount: achievements.keys.length, itemBuilder: (context, index) {
               final achievement = achievements[achievements.keys.elementAt(index)]!;
               return Column(
                 children: [
@@ -98,11 +103,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       // Background image
                       Container(
-                        width: 80,
-                        height: 80,
+                        width: 140,
+                        height: 140,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage("assets/img/" + achievement.imagePath),
+                            image: AssetImage("assets/img/${achievement.imagePath}"),
                             fit: BoxFit.cover,
                           ),
                           shape: BoxShape.rectangle,
@@ -112,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       // Overlay icon
                       Icon(
                         achievement.icon,
-                        size: 40,
+                        size: 52,
                         color: Colors.white.withOpacity(0.8),
                       ),
                     ],
@@ -127,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               );
             },
-            )
+            ))
             // Weitere Details
           ],
         ),
