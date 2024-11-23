@@ -1,18 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key, required this.title});
+class ProfilePage extends StatefulWidget {
+  ProfilePage({super.key, required this.title});
 
   final String title;
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String? user_email = FirebaseAuth.instance.currentUser!.email;
+  String? username = FirebaseAuth.instance.currentUser!.displayName;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -28,14 +40,14 @@ class ProfilePage extends StatelessWidget {
 
             // Name
             Text(
-              'Username',
+              username ?? 'anonymous',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
 
             // E-Mail
             Text(
-              'johndoe@example.com',
+              user_email != null ? user_email! : 'anonymous',
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             SizedBox(height: 16),

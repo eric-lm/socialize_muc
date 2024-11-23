@@ -8,6 +8,20 @@ import '../pages/homepage.dart';
 import '../pages/events_page.dart';
 import '../pages/journal_page.dart';
 import '../pages/profile_page.dart';
+import 'dart:math';
+
+List<String> funnyUsernames = [
+  "BananaInPajamas",
+  "ToiletPaperTycoon",
+  "CaptainObvious123",
+  "NachoAverageJoe",
+  "PickleRickRoll",
+  "SirLaughsALot",
+  "PineapplePizzaPro",
+  "CerealKillerXD",
+  "SassyPants42",
+  "GravyBoatCaptain",
+];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,18 +31,19 @@ void main() async {
 
   var db = FirebaseFirestore.instance;
 
-  FirebaseAuth.instance
-      .authStateChanges()
-      .listen((User? user) async {
+  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
     if (user != null) {
       var userRef = db.collection("user").doc(user.uid);
       print(userRef);
       var userDoc = await userRef.get();
-      
+
       if (userDoc.exists) {
         // TODO: use user data
       } else {
-        await userRef.set({"display_name": user.displayName ?? user.email});
+        if (user.displayName == null) {
+          await user.updateDisplayName(funnyUsernames[Random().nextInt(10)]);
+        }
+        await userRef.set({"display_name": user.displayName});
       }
     }
   });
@@ -48,7 +63,8 @@ class SocializeMucApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const AuthGate(nestedPage: const MyHomePage(title: 'Socialize MUC')),
+      home:
+          const AuthGate(nestedPage: const MyHomePage(title: 'Socialize MUC')),
     );
   }
 }
@@ -65,7 +81,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _pageindex = 0;
 
-  final List<Widget> _pages = const <Widget>[
+  final List<Widget> _pages = <Widget>[
     HomePage(),
     EventsPage(
       title: 'Events',
