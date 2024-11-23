@@ -89,6 +89,7 @@ class _EventsPageState extends State<EventsPage> {
                 itemBuilder: (context, index) {
                   final event = events[index];
                   return Card(
+                    color: Theme.of(context).cardColor,
                     elevation: 4,
                     margin: EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
@@ -151,7 +152,7 @@ class _EventsPageState extends State<EventsPage> {
                                 SizedBox(width: 4),
                                 Text(
                                   "${event.time.day}.${event.time.month}.${event.time.year} at ${event.time.hour}:${event.time.minute.toString().padLeft(2, '0')}",
-                                  style: TextStyle(color: Colors.grey[700]),
+                                  style: TextStyle(color: Colors.grey[400]),
                                 ),
                               ],
                             ),
@@ -163,7 +164,7 @@ class _EventsPageState extends State<EventsPage> {
                                 SizedBox(width: 4),
                                 Text(
                                   event.place.toString(),
-                                  style: TextStyle(color: Colors.grey[700]),
+                                  style: TextStyle(color: Colors.grey[400]),
                                 ),
                               ],
                             ),
@@ -175,15 +176,15 @@ class _EventsPageState extends State<EventsPage> {
                                     ConnectionState.waiting) {
                                   return Text("Loading...",
                                       style:
-                                          TextStyle(color: Colors.grey[700]));
+                                          TextStyle(color: Colors.grey[400]));
                                 } else if (snapshot.hasError) {
                                   return Text("Error",
                                       style:
-                                          TextStyle(color: Colors.grey[700]));
+                                          TextStyle(color: Colors.grey[400]));
                                 } else {
                                   return Text(
                                     "Participants: ${snapshot.data} ${event.maxParticipants == 0 ? '' : '(max: ${event.maxParticipants})'}",
-                                    style: TextStyle(color: Colors.grey[700]),
+                                    style: TextStyle(color: Colors.grey[400]),
                                   );
                                 }
                               },
@@ -192,40 +193,20 @@ class _EventsPageState extends State<EventsPage> {
                             SizedBox(height: 8),
                             // Tags
                             Wrap(
-                              spacing: 8,
+                              spacing: 8.0,
                               children: event.tags.map((tag) {
                                 return Chip(
-                                  label: Text(tag),
-                                  backgroundColor: Colors.blue[100],
+                                  label: Text(
+                                    tag,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.orange,
+                                  elevation: 0, // Entfernt den Schlagschatten
+                                  side: BorderSide
+                                      .none, // Entfernt die Umrandung (Rand)
                                 );
                               }).toList(),
                             ),
-                            SizedBox(height: 8),
-                            // Organizer Info
-
-                            FutureBuilder(
-                                future: FirebaseFirestore.instance
-                                    .collection("user")
-                                    .doc(event.organizer.id)
-                                    .get(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                        child:
-                                            Text("Error: ${snapshot.error}"));
-                                  } else if (!snapshot.hasData) {
-                                    return const Center(
-                                        child: Text("No Organizer found"));
-                                  } else {
-                                    return Text("Created by: " +
-                                            snapshot.data!['display_name'] ??
-                                        'Anonymous Creator');
-                                  }
-                                }),
                           ],
                         ),
                       ),

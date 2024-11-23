@@ -82,6 +82,7 @@ class _JournalPageState extends State<JournalPage> {
       body: ListView.builder(
         itemCount: journals.length,
         itemBuilder: (context, index) => Card(
+          color: Theme.of(context).cardColor,
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: ListTile(
             title: Text(journals[index]['title']!),

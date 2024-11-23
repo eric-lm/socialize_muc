@@ -34,8 +34,14 @@ class EventPreviewCard extends StatelessWidget {
       width: width,
       height: height,
       destinationPage: EventsPage(title: 'Events', initialEvents: events),
-      child: Padding(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.indigo,
+          borderRadius: BorderRadius.circular(15),
+        ),
         padding: const EdgeInsets.all(16.0),
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
         child: nextEvent != null
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +49,83 @@ class EventPreviewCard extends StatelessWidget {
                   Text(
                     'Your Next Event',
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: Colors.grey[400],
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    nextEvent.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time,
+                          size: 16, color: Colors.grey[400]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${nextEvent.time.day}/${nextEvent.time.month} ${nextEvent.time.hour}:${nextEvent.time.minute.toString().padLeft(2, '0')}',
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                      const SizedBox(width: 16),
+                      Icon(Icons.people, size: 16, color: Colors.grey[400]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${nextEvent.numParticipants}/${nextEvent.maxParticipants}',
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                      const Spacer(),
+                      if (nextEvent.tags.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            nextEvent.tags.first,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                    ],
+                  )
+                ],
+              )
+            : const Center(
+                child: Text(
+                  'No challenges available',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+/*
+
+ */
+
+/*
+nextEvent != null
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Your Next Event',
+                    style: TextStyle(
+                      color: Colors.grey[400],
                       fontSize: 14,
                     ),
                   ),
@@ -63,18 +145,18 @@ class EventPreviewCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.access_time,
-                          size: 16, color: Colors.grey[600]),
+                          size: 16, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
                         '${nextEvent.time.day}/${nextEvent.time.month} ${nextEvent.time.hour}:${nextEvent.time.minute.toString().padLeft(2, '0')}',
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(color: Colors.grey[400]),
                       ),
                       const SizedBox(width: 16),
-                      Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                      Icon(Icons.people, size: 16, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
                         '${nextEvent.numParticipants}/${nextEvent.maxParticipants}',
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(color: Colors.grey[400]),
                       ),
                       const Spacer(),
                       if (nextEvent.tags.isNotEmpty)
@@ -82,7 +164,7 @@ class EventPreviewCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.blue[100],
+                            color: Colors.orange,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -104,7 +186,4 @@ class EventPreviewCard extends StatelessWidget {
                   ),
                 ),
               ),
-      ),
-    );
-  }
-}
+ */

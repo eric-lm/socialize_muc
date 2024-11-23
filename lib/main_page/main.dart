@@ -76,8 +76,26 @@ class SocializeMucApp extends StatelessWidget {
     return MaterialApp(
       title: 'Socialize MUC',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        cardColor: Colors.grey[900]!,
+        textTheme: TextTheme(
+          displayLarge: const TextStyle(
+            fontSize: 72,
+            fontWeight: FontWeight.bold,
+          ),
+          // ···
+        ),
+        appBarTheme: AppBarTheme(
+          iconTheme: IconThemeData(color: Colors.white), // Change icon color
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          selectedItemColor: Colors.white, // Selected icon color
+          unselectedItemColor: Colors.white54, // Unselected icon color
+        ),
       ),
       home:
           const AuthGate(nestedPage: const MyHomePage(title: 'Socialize MUC')),
