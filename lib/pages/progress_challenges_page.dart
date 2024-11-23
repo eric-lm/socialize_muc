@@ -79,14 +79,14 @@ class ProgressChallengesPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'Welcome back, User!',
+                  'Welcome back!',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Level 5 Socializer',
+                  'Level 1 Socializer',
                   style: TextStyle(
                     color: Colors.grey,
                   ),

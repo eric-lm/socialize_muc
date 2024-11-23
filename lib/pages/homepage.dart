@@ -4,6 +4,8 @@ import 'package:socialize/models/challenge.dart';
 import 'package:socialize/models/event.dart';
 import 'package:socialize/widgets/event_preview_card.dart';
 import 'package:socialize/widgets/challenge_preview_card.dart';
+import 'package:socialize/scripts/add_dummy_data.dart';
+import 'package:socialize/scripts/add_dummy_data.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key, required this.events, required this.challenges});
@@ -23,6 +25,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     print('HomePage initialized');
+    _initializeDummyData();
+  }
+
+  Future<void> _initializeDummyData() async {
+    try {
+      await DummyDataInitializer.initializeDummyEvents();
+    } catch (e) {
+      print('Error initializing dummy data: $e');
+    }
   }
 
   @override

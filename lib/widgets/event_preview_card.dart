@@ -78,7 +78,7 @@ class EventPreviewCard extends StatelessWidget {
                       Icon(Icons.people, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        '${nextEvent.numParticipants}/${nextEvent.minNumParticipants}',
+                        '${nextEvent.numParticipants}/${nextEvent.maxParticipants}',
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                       const Spacer(),
