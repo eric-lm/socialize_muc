@@ -4,6 +4,7 @@ import 'package:socialize/models/event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socialize/pages/event_detail_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class EventsPage extends StatefulWidget {
   final String title;
@@ -16,9 +17,12 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
+  late Future<List<Event>> _eventsFuture;
+
   @override
   void initState() {
     super.initState();
+    _eventsFuture = _loadEvents();
   }
 
   Future<List<Event>> _loadEvents() async {
@@ -35,11 +39,17 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
+  void _refreshEvents() {
+    setState(() {
+      _eventsFuture = _loadEvents();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder(
-            future: _loadEvents(),
+            future: _eventsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -62,11 +72,15 @@ class _EventsPageState extends State<EventsPage> {
                       child: InkWell(
                         onTap: () async {
                           var result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EventDetailPage(
-                                        event: event,
-                                      )));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EventDetailPage(event: event),
+                            ),
+                          );
+                          if (result == true) {
+                            _refreshEvents();
+                          }
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -135,14 +149,28 @@ class _EventsPageState extends State<EventsPage> {
                                 ],
                               ),
                               SizedBox(height: 8),
-
-                              // Participants
-                              Text(
-                                "Participants: ${event.numParticipants} ${event.maxParticipants == 0 ? '' : '(max: ${event.maxParticipants})'}",
-                                style: TextStyle(color: Colors.grey[700]),
+                              FutureBuilder<int>(
+                                future: _getParticipantCount(event),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Text("Loading...",
+                                        style:
+                                            TextStyle(color: Colors.grey[700]));
+                                  } else if (snapshot.hasError) {
+                                    return Text("Error",
+                                        style:
+                                            TextStyle(color: Colors.grey[700]));
+                                  } else {
+                                    return Text(
+                                      "Participants: ${snapshot.data} ${event.maxParticipants == 0 ? '' : '(max: ${event.maxParticipants})'}",
+                                      style: TextStyle(color: Colors.grey[700]),
+                                    );
+                                  }
+                                },
                               ),
-                              SizedBox(height: 8),
 
+                              SizedBox(height: 8),
                               // Tags
                               Wrap(
                                 spacing: 8,
@@ -207,4 +235,17 @@ Future<bool> isUserAssigned(Event event, User user) async {
       .map((doc) => (doc.get('event') as DocumentReference).id)
       .toSet();
   return assignedEvents.contains(eventRef.id);
+}
+
+Future<int> _getParticipantCount(Event event) async {
+  var eventRef = FirebaseFirestore.instance.collection('event').doc(event.id);
+  try {
+    await Future.delayed(Duration(milliseconds: 300)); // Pause von 500 ms
+    final querySnapshot = await eventRef.get();
+    print(querySnapshot.data()?['num_participants'] ?? 0);
+    return querySnapshot.data()?['num_participants'] ?? 0;
+  } catch (e) {
+    print("Error fetching participant count: $e");
+    return 0;
+  }
 }
