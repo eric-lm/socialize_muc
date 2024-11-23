@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main_page/main.dart';
+import 'main_page/main.dart' as main_page;
 
 void main() {
-  runApp(const SocializeMucApp());
+  main_page.main();
 }
