@@ -78,7 +78,7 @@ class SocializeMucApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: Colors.indigo,
           brightness: Brightness.dark,
         ),
         cardColor: Colors.grey[900]!,
