@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class EventParticipation {
   final DocumentReference user;
   final DocumentReference event;
-  final bool wasVerified;
+  final bool? wasVerified;
 
   EventParticipation({
     required this.user,
     required this.event,
-    required this.wasVerified,
+    this.wasVerified,
   });
 
   factory EventParticipation.fromFirestore(
@@ -27,7 +27,6 @@ class EventParticipation {
     return {
       'user': user,
       'event': event,
-      'was_verified': wasVerified,
     };
   }
 }
