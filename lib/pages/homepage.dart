@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:socialize/models/challenge.dart';
 import 'package:socialize/models/event.dart';
-import 'package:socialize/widgets/event_preview_card.dart';
-import 'package:socialize/widgets/challenge_preview_card.dart';
+import 'package:socialize/pages/widgets/event_preview_card.dart';
+import 'package:socialize/pages/widgets/challenge_preview_card.dart';
 import 'package:socialize/scripts/add_dummy_data.dart';
 import 'package:socialize/scripts/add_dummy_data.dart';
 

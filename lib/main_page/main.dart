@@ -9,9 +9,11 @@ import '../pages/events_page.dart';
 import '../pages/journal_page.dart';
 import '../pages/profile_page.dart';
 import 'dart:math';
+import 'dart:async';
 import 'package:socialize/models/event.dart';
 import 'package:socialize/models/challenge.dart';
 import 'package:socialize/main_page/db_fetching.dart';
+import 'package:socialize/app/app_active_user.dart';
 
 List<String> funnyUsernames = [
   "BananaInPajamas",
@@ -96,7 +98,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _pageindex = 0;
-
+  late StreamSubscription<User?> _authStateSubscription;
   Future<List<Event>>? future_events;
   Future<List<Challenge>>? future_challenges;
   late Future<List<Widget>> _pages;
@@ -104,6 +106,16 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    _authStateSubscription =
+        FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        AppActiveUser.instance.setUser(user);
+      } else {
+        AppActiveUser.instance.clearUser();
+      }
+    });
+
     future_events = getEvents();
     future_challenges = getChallenges();
     _pages = getPages();

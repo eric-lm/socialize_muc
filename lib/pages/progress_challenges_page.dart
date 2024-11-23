@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/challenge.dart';
+import '../app/app_active_user.dart';
 
 class PathPainter extends CustomPainter {
   @override
@@ -30,9 +33,22 @@ class ProgressChallengesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sortedChallenges = List<Challenge>.from(challenges)
+      ..sort((a, b) {
+        // First compare by type
+        int typeComparison = a.type.index.compareTo(b.type.index);
+        if (typeComparison != 0) return typeComparison;
+
+        // Then compare by level (where level is an integer)
+        // If level is null, treat it as highest level (put at end)
+        final levelA = a.level ?? 999;
+        final levelB = b.level ?? 999;
+        return levelA.compareTo(levelB);
+      });
+
     // Filter only progress challenges
     final progressChallenges =
-        challenges.where((c) => c.type == Type.PROGRESS).toList();
+        sortedChallenges.where((c) => c.type == Type.PROGRESS).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -167,6 +183,42 @@ class ProgressChallengesPage extends StatelessWidget {
     );
   }
 
+  Future<double> _getChallengeProgress(String challengeId) async {
+    try {
+      final userId = AppActiveUser.instance.userId;
+      if (userId == null) return 0.0;
+
+      final docRef = FirebaseFirestore.instance
+          .collection('user')
+          .doc(userId)
+          .collection('private')
+          .doc("progress");
+
+      final doc = await docRef.get();
+      if (!doc.exists || doc.data() == null) return 0.0;
+
+      // Get the array of challenges
+      final List<dynamic> challengeProgress =
+          doc.data()?['challenge_progress'] ?? [];
+
+      // Find the matching challenge
+      final matchingProgress = challengeProgress.firstWhere(
+        (progress) =>
+            (progress['challenge'] as DocumentReference).id == challengeId,
+        orElse: () => null,
+      );
+
+      if (matchingProgress == null) return 0.0;
+
+      // Get progress value
+      final progress = matchingProgress['progress'] as num?;
+      return (progress ?? 0.0).toDouble();
+    } catch (e) {
+      print('ERROR: Error fetching progress: $e');
+      return 0.0;
+    }
+  }
+
   Widget _buildChallengeCard(Challenge challenge) {
     Color iconColor = challenge.type == Type.WEEKLY
         ? Colors.blue
@@ -227,10 +279,28 @@ class ProgressChallengesPage extends StatelessWidget {
               const SizedBox(height: 16),
               Text(challenge.text),
               const SizedBox(height: 16),
-              LinearProgressIndicator(
-                value: 0, // TODO: Use ChallengeProgress
-                backgroundColor: Colors.grey[200],
-                valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+              FutureBuilder<double>(
+                future: _getChallengeProgress(challenge.id),
+                builder: (context, snapshot) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LinearProgressIndicator(
+                        value: snapshot.data ?? 0.0,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${((snapshot.data ?? 0.0) * 100).toInt()}% Complete',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
