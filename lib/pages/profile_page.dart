@@ -33,9 +33,13 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             // Profilbild
             CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/profile_picture.jpg'),
-            ),
+                radius: 50,
+                child: Icon(
+                  Icons.person,
+                  size: 80,
+                )
+                //backgroundImage:b AssetImage('assets/profile_picture.jpg'),
+                ),
             SizedBox(height: 16),
 
             // Name
@@ -67,16 +71,6 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(height: 32),
 
             // Weitere Details
-            ListTile(
-              leading: Icon(Icons.phone),
-              title: Text('Phone'),
-              subtitle: Text('+123 456 789'),
-            ),
-            ListTile(
-              leading: Icon(Icons.location_on),
-              title: Text('Address'),
-              subtitle: Text('123 Main Street, City, Country'),
-            ),
           ],
         ),
       ),
