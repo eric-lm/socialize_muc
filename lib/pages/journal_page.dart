@@ -6,7 +6,12 @@ class JournalPage extends StatefulWidget {
 }
 
 class _JournalPageState extends State<JournalPage> {
-  List<Map<String, String>> journals = [];
+  List<Map<String, String>> journals = [
+    {
+      'title': 'Demo Entry',
+      'content': 'Share your thoughts about the last event ...'
+    }
+  ];
 
   void _openJournalDialog({int? index}) {
     TextEditingController titleController = TextEditingController();
