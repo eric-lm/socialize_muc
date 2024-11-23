@@ -34,8 +34,8 @@ class Event {
       time: (data?['time'] as Timestamp).toDate(),
       place: data?['place'],
       organizer: data?['organizer'],
-      numParticipants: data == null ? 0 : data!['num_participants'] ?? 0,
-      minNumParticipants: data == null ? 0 : data!['min_num_participants'] ?? 0,
+      numParticipants: data?['num_participants'] ?? 0,
+      minNumParticipants: data?['min_num_participants'] ?? 0,
       description: data?['description'],
       tags: List<String>.from(data?['tags']),
     );

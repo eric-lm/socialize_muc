@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socialize/models/event.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventsPage extends StatelessWidget {
   final String title;
@@ -10,10 +11,6 @@ class EventsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
-      ),
       body: ListView.builder(
         padding: EdgeInsets.all(16),
         itemCount: events.length,
@@ -65,7 +62,7 @@ class EventsPage extends StatelessWidget {
 
                   // Participants
                   Text(
-                    "Participants: ${event.numParticipants}/${event.minNumParticipants}",
+                    "Participants: ${event.numParticipants} ${event.minNumParticipants == 0 ? '' : '(min: ${event.minNumParticipants})'}",
                     style: TextStyle(color: Colors.grey[700]),
                   ),
                   SizedBox(height: 8),
@@ -92,11 +89,28 @@ class EventsPage extends StatelessWidget {
                   SizedBox(height: 16),
 
                   // Organizer Info
-                  Text(
-                    "Organizer ID: ${event.organizer.id}",
-                    style: TextStyle(
-                        color: Colors.grey, fontStyle: FontStyle.italic),
-                  ),
+                  FutureBuilder(
+                      future: FirebaseFirestore.instance
+                          .collection("user")
+                          .doc(event.organizer.id)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text("Error: ${snapshot.error}"));
+                        } else if (!snapshot.hasData) {
+                          return const Center(
+                              child: Text("No Organizer found"));
+                        } else {
+                          return Text(
+                              "Created by: " + snapshot.data!['display_name'] ??
+                                  'Anonymous Creator');
+                        }
+                      }),
                 ],
               ),
             ),
