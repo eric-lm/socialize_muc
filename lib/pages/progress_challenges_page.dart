@@ -274,6 +274,26 @@ class ProgressChallengesPage extends StatelessWidget {
                       _buildDifficultyBadge(challenge.type.name),
                     ],
                   ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      constraints: const BoxConstraints(),
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.add,
+                        color: iconColor,
+                        size: 24,
+                      ),
+                      onPressed: () {
+                        // Add your button action here
+                      },
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
