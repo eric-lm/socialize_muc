@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'progress_challenges_page.dart';
-import '../models/event.dart';
-import '../models/challenge.dart';
-import '../models/user.dart' as user_model;
+import 'package:socialize/models/challenge.dart';
+import 'package:socialize/models/event.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  HomePage({super.key, required this.events, required this.challenges});
+
+  final List<Event> events;
+  final List<Challenge> challenges;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -22,6 +22,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     print('HomePage initialized');
+
+    /*
     getEvents().listen(
       (events) => print('Events received: ${events.length}'),
       onError: (error) => print('Error fetching events: $error'),
@@ -30,6 +32,8 @@ class _HomePageState extends State<HomePage> {
       (challenges) => print('Challenges received: ${challenges.length}'),
       onError: (error) => print('Error fetching challenges: $error'),
     );
+
+     */
   }
 
   @override
@@ -38,50 +42,11 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  Stream<List<Event>> getEvents() {
-    return db.collection('event').snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => Event.fromFirestore(doc, null))
-          .toList();
-    });
+  Widget build(BuildContext context) {
+    return const Text('Homepage');
   }
 
-  Stream<List<Challenge>> getChallenges() {
-    return db.collection('challenge').snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => Challenge.fromFirestore(doc, null))
-          .toList();
-    });
-  }
-
-  Future<Challenge?> getChallengeById(String challengeId) async {
-    try {
-      print('Fetching challenge with ID: $challengeId');
-      final docSnapshot =
-          await db.collection('challenges').doc(challengeId).get();
-
-      if (!docSnapshot.exists) {
-        print('No challenge found with ID: $challengeId');
-        return null;
-      }
-
-      print('Found challenge document, converting to Challenge object');
-      return Challenge.fromFirestore(docSnapshot, null);
-    } catch (e) {
-      print('Error fetching challenge: $e');
-      rethrow;
-    }
-  }
-
-  Stream<user_model.User> getCurrentUser() {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) throw Exception('No user logged in');
-
-    return db.collection('user').doc(userId).snapshots().map((snapshot) {
-      return user_model.User.fromFirestore(snapshot, null);
-    });
-  }
-
+/*
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<user_model.User>(
@@ -399,4 +364,6 @@ class _HomePageState extends State<HomePage> {
       ],
     );
   }
+
+   */
 }

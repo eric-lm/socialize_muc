@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/challenge.dart';
-import '../models/user.dart';
 
 class PathPainter extends CustomPainter {
   @override
@@ -32,8 +31,9 @@ class ProgressChallengesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Filter only progress challenges
-    final progressChallenges = challenges.where((c) => c.type == Type.PROGRESS).toList();
-    
+    final progressChallenges =
+        challenges.where((c) => c.type == Type.PROGRESS).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Progress Challenges'),
@@ -112,7 +112,8 @@ class ProgressChallengesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildChallengeTimeline(BuildContext context, List<Challenge> challenges) {
+  Widget _buildChallengeTimeline(
+      BuildContext context, List<Challenge> challenges) {
     return Stack(
       children: [
         CustomPaint(

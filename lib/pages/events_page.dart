@@ -56,7 +56,7 @@ class EventsPage extends StatelessWidget {
                       Icon(Icons.location_on, size: 16, color: Colors.grey),
                       SizedBox(width: 4),
                       Text(
-                        event.place,
+                        event.place.toString(),
                         style: TextStyle(color: Colors.grey[700]),
                       ),
                     ],

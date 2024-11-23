@@ -4,7 +4,7 @@ class Event {
   final String id;
   final String title;
   final DateTime time;
-  final String place;
+  final GeoPoint place;
   final DocumentReference organizer;
   final int numParticipants;
   final int minNumParticipants;
