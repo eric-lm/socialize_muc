@@ -44,7 +44,8 @@ class _EventCreationPageState extends State<EventCreationPage> {
 
               // Date field
               ListTile(
-                title: Text("Event Date: ${_selectedDate.toLocal()}"),
+                title: Text(
+                    "Event Date: ${_selectedDate.day}.${_selectedDate.month}.${_selectedDate.year} at ${_selectedDate.hour}:${_selectedDate.minute < 10 ? "0${_selectedDate.minute}" : _selectedDate.minute}"),
                 trailing: Icon(Icons.calendar_today),
                 onTap: () async {
                   DateTime? pickedDate = await showDatePicker(
@@ -54,9 +55,23 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     lastDate: DateTime(2101),
                   );
                   if (pickedDate != null && pickedDate != _selectedDate) {
-                    setState(() {
-                      _selectedDate = pickedDate;
-                    });
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay(
+                          hour: _selectedDate.hour,
+                          minute: _selectedDate.minute),
+                    );
+                    if (pickedTime != null) {
+                      setState(() {
+                        _selectedDate = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
+                    }
                   }
                 },
               ),

@@ -48,43 +48,49 @@ class ChallengePreviewCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: nextChallenge != null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            ? Row(
                 children: [
-                  Text(
-                    'Next Challenge',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    nextChallenge.title,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    nextChallenge.text,
-                    style: const TextStyle(fontSize: 16),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Max Progress: ${nextChallenge.maxProgress}',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Type: ${nextChallenge.type.name}',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
+                  Icon(Icons.keyboard_double_arrow_up),
+                  SizedBox(width: 30),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Next Challenge',
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        nextChallenge.title,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        nextChallenge.text,
+                        style: const TextStyle(fontSize: 16),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Max Progress: ${nextChallenge.maxProgress}',
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Type: ${nextChallenge.type.name}',
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                    ],
+                  )
                 ],
               )
             : const Center(

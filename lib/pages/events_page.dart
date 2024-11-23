@@ -6,6 +6,7 @@ import 'package:socialize/pages/event_detail_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:socialize/pages/event_creation_page.dart';
 import 'dart:io';
+import 'dart:core';
 
 class EventsPage extends StatefulWidget {
   final String title;
@@ -31,9 +32,19 @@ class _EventsPageState extends State<EventsPage> {
     try {
       var eventSnapshot =
           await FirebaseFirestore.instance.collection('event').get();
-      return eventSnapshot.docs
+      List<Event> events = eventSnapshot.docs
           .map((doc) => Event.fromFirestore(doc, null))
           .toList();
+
+      events =
+          events.where((event) => event.time.isAfter(DateTime.now())).toList();
+
+      events.sort((e1, e2) {
+        return e1.time.compareTo(e2.time);
+      });
+      events = await sortEvents(events);
+
+      return events;
     } catch (e) {
       print("Error loading events: $e");
       return List.empty();
@@ -41,17 +52,12 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   listenToChangeOfCategories() {
-    print('listening just started......');
-    // collection we are going to listen
     final collection = FirebaseFirestore.instance.collection('event');
-    // start to listen
     final listener = collection.snapshots().listen((change) {
       if (change.docChanges.isNotEmpty) {
-        // do whatever you want to do
         return _refreshEvents();
       }
     });
-    // if listener implemented its job then cancel
     listener.onDone(() {
       listener.cancel();
     });
@@ -83,6 +89,7 @@ class _EventsPageState extends State<EventsPage> {
                 itemBuilder: (context, index) {
                   final event = events[index];
                   return Card(
+                    color: Theme.of(context).cardColor,
                     elevation: 4,
                     margin: EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
@@ -137,10 +144,7 @@ class _EventsPageState extends State<EventsPage> {
                                     })
                               ],
                             ),
-                            // Event Title
                             SizedBox(height: 8),
-
-                            // Event Time and Place
                             Row(
                               children: [
                                 Icon(Icons.calendar_today,
@@ -148,7 +152,7 @@ class _EventsPageState extends State<EventsPage> {
                                 SizedBox(width: 4),
                                 Text(
                                   "${event.time.day}.${event.time.month}.${event.time.year} at ${event.time.hour}:${event.time.minute.toString().padLeft(2, '0')}",
-                                  style: TextStyle(color: Colors.grey[700]),
+                                  style: TextStyle(color: Colors.grey[400]),
                                 ),
                               ],
                             ),
@@ -160,7 +164,7 @@ class _EventsPageState extends State<EventsPage> {
                                 SizedBox(width: 4),
                                 Text(
                                   event.place.toString(),
-                                  style: TextStyle(color: Colors.grey[700]),
+                                  style: TextStyle(color: Colors.grey[400]),
                                 ),
                               ],
                             ),
@@ -172,15 +176,15 @@ class _EventsPageState extends State<EventsPage> {
                                     ConnectionState.waiting) {
                                   return Text("Loading...",
                                       style:
-                                          TextStyle(color: Colors.grey[700]));
+                                          TextStyle(color: Colors.grey[400]));
                                 } else if (snapshot.hasError) {
                                   return Text("Error",
                                       style:
-                                          TextStyle(color: Colors.grey[700]));
+                                          TextStyle(color: Colors.grey[400]));
                                 } else {
                                   return Text(
                                     "Participants: ${snapshot.data} ${event.maxParticipants == 0 ? '' : '(max: ${event.maxParticipants})'}",
-                                    style: TextStyle(color: Colors.grey[700]),
+                                    style: TextStyle(color: Colors.grey[400]),
                                   );
                                 }
                               },
@@ -189,40 +193,20 @@ class _EventsPageState extends State<EventsPage> {
                             SizedBox(height: 8),
                             // Tags
                             Wrap(
-                              spacing: 8,
+                              spacing: 8.0,
                               children: event.tags.map((tag) {
                                 return Chip(
-                                  label: Text(tag),
-                                  backgroundColor: Colors.blue[100],
+                                  label: Text(
+                                    tag,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.orange,
+                                  elevation: 0, // Entfernt den Schlagschatten
+                                  side: BorderSide
+                                      .none, // Entfernt die Umrandung (Rand)
                                 );
                               }).toList(),
                             ),
-                            SizedBox(height: 8),
-                            // Organizer Info
-
-                            FutureBuilder(
-                                future: FirebaseFirestore.instance
-                                    .collection("user")
-                                    .doc(event.organizer.id)
-                                    .get(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                        child:
-                                            Text("Error: ${snapshot.error}"));
-                                  } else if (!snapshot.hasData) {
-                                    return const Center(
-                                        child: Text("No Organizer found"));
-                                  } else {
-                                    return Text("Created by: " +
-                                            snapshot.data!['display_name'] ??
-                                        'Anonymous Creator');
-                                  }
-                                }),
                           ],
                         ),
                       ),
@@ -255,7 +239,6 @@ Future<bool> isUserAssigned(Event event, User user) async {
 
   final querySnapshot = await FirebaseFirestore.instance
       .collection('event_participation')
-      //.doc('d8Ae5SmOu1D2YRMdhuaD')
       .where('user', isEqualTo: userRef)
       .get();
 
@@ -275,4 +258,34 @@ Future<int> _getParticipantCount(Event event) async {
     print("Error fetching participant count: $e");
     return 0;
   }
+}
+
+Future<List<Event>> sortEvents(List<Event> events) async {
+  List<Map<String, dynamic>> eventsWithAssignmentStatus = [];
+
+  User user = FirebaseAuth.instance.currentUser!;
+
+  for (var event in events) {
+    bool isAssigned = await isUserAssigned(event, user);
+    eventsWithAssignmentStatus.add({
+      'event': event,
+      'isAssigned': isAssigned,
+    });
+  }
+
+  eventsWithAssignmentStatus.sort((a, b) {
+    bool assigned1 = a['isAssigned'];
+    bool assigned2 = b['isAssigned'];
+
+    if (assigned1 == assigned2) {
+      return 0;
+    }
+    return assigned1 ? -1 : 1;
+  });
+
+  List<Event> sortedEvents = eventsWithAssignmentStatus
+      .map((entry) => entry['event'] as Event)
+      .toList();
+
+  return sortedEvents;
 }
