@@ -1,27 +1,7 @@
 import 'package:flutter/material.dart';
+import '../models/challenge.dart';
+import '../models/user.dart';
 
-// Challenge data model
-class Challenge {
-  final IconData icon;
-  final String title;
-  final String description;
-  final String difficulty;
-  final int progress;
-  final bool unlocked;
-  final Color iconColor;
-
-  Challenge({
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.difficulty,
-    required this.progress,
-    required this.unlocked,
-    required this.iconColor,
-  });
-}
-
-// Add this custom painter class at the top level
 class PathPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,7 +10,6 @@ class PathPainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    // Draw simple vertical line
     final path = Path()
       ..moveTo(size.width / 2, 0)
       ..lineTo(size.width / 2, size.height);
@@ -42,51 +21,23 @@ class PathPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-class ChallengesPage extends StatelessWidget {
-  ChallengesPage({super.key});
+class ProgressChallengesPage extends StatelessWidget {
+  final List<Challenge> challenges;
 
-  final List<Challenge> challenges = [
-    Challenge(
-      icon: Icons.message,
-      title: "Start 5 Conversations",
-      description: "Initiate chats with new people",
-      difficulty: "Easy",
-      progress: 60,
-      unlocked: true,
-      iconColor: Colors.blue,
-    ),
-    Challenge(
-      icon: Icons.group,
-      title: "Attend a Meetup",
-      description: "Join a local event in your area",
-      difficulty: "Medium",
-      progress: 0,
-      unlocked: true,
-      iconColor: Colors.green,
-    ),
-    Challenge(
-      icon: Icons.book,
-      title: "Complete Your Profile",
-      description: "Add more details about yourself",
-      difficulty: "Easy",
-      progress: 80,
-      unlocked: true,
-      iconColor: Colors.amber,
-    ),
-    Challenge(
-      icon: Icons.emoji_events,
-      title: "Win a Debate",
-      description: "Participate and win in a forum debate",
-      difficulty: "Hard",
-      progress: 30,
-      unlocked: false,
-      iconColor: Colors.purple,
-    ),
-  ];
+  const ProgressChallengesPage({
+    super.key,
+    required this.challenges,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Filter only progress challenges
+    final progressChallenges = challenges.where((c) => c.type == Type.PROGRESS).toList();
+    
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Progress Challenges'),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -104,7 +55,7 @@ class ChallengesPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: _buildChallengeTimeline(context),
+                child: _buildChallengeTimeline(context, progressChallenges),
               ),
             ],
           ),
@@ -161,7 +112,7 @@ class ChallengesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildChallengeTimeline(BuildContext context) {
+  Widget _buildChallengeTimeline(BuildContext context, List<Challenge> challenges) {
     return Stack(
       children: [
         CustomPaint(
@@ -186,9 +137,7 @@ class ChallengesPage extends StatelessWidget {
                     width: 20,
                     height: 20,
                     decoration: BoxDecoration(
-                      color: challenge.unlocked
-                          ? challenge.iconColor
-                          : Colors.grey,
+                      color: Colors.grey,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Colors.white,
@@ -218,98 +167,86 @@ class ChallengesPage extends StatelessWidget {
   }
 
   Widget _buildChallengeCard(Challenge challenge) {
+    Color iconColor = challenge.type == Type.WEEKLY
+        ? Colors.blue
+        : challenge.type == Type.MONTHLY
+            ? Colors.green
+            : Colors.amber;
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Opacity(
-        opacity: challenge.unlocked ? 1.0 : 0.5,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                challenge.iconColor.withOpacity(0.1),
-                Colors.white,
-              ],
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              iconColor.withOpacity(0.1),
+              Colors.white,
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: challenge.iconColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(
-                        challenge.unlocked ? challenge.icon : Icons.lock,
-                        color: challenge.unlocked
-                            ? challenge.iconColor
-                            : Colors.grey,
-                        size: 24,
-                      ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: iconColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          challenge.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        _buildDifficultyBadge(challenge.difficulty),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  challenge.description,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Progress'),
-                    Text('${challenge.progress}%'),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: challenge.progress / 100,
-                  backgroundColor: Colors.grey[200],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: challenge.unlocked ? () {} : null,
-                    child: Text(
-                      !challenge.unlocked
-                          ? 'Locked'
-                          : challenge.progress == 100
-                              ? 'Claim Reward'
-                              : 'Start Challenge',
+                    child: Icon(
+                      _getChallengeTypeIcon(challenge.type),
+                      color: iconColor,
+                      size: 24,
                     ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        challenge.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      _buildDifficultyBadge(challenge.type.name),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(challenge.text),
+              const SizedBox(height: 16),
+              LinearProgressIndicator(
+                value: 0, // TODO: Use ChallengeProgress
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  IconData _getChallengeTypeIcon(Type type) {
+    switch (type) {
+      case Type.WEEKLY:
+        return Icons.event;
+      case Type.MONTHLY:
+        return Icons.calendar_month;
+      case Type.PROGRESS:
+        return Icons.trending_up;
+    }
   }
 
   Widget _buildDifficultyBadge(String difficulty) {
