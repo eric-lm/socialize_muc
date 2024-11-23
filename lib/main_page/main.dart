@@ -85,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
     HomePage(),
     EventsPage(
       title: 'Events',
+      events: [],
     ),
     JournalPage(
       title: 'Journaling',
