@@ -103,8 +103,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       // Background image
                       Container(
-                        width: 120,
-                        height: 120,
+                        width: 80,
+                        height: 80,
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/img/${achievement.imagePath}"),
@@ -117,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       // Overlay icon
                       Icon(
                         achievement.icon,
-                        size: 52,
+                        size: 48,
                         color: Colors.white.withOpacity(0.8),
                       ),
                     ],
