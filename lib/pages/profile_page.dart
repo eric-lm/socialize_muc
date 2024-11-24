@@ -103,8 +103,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       // Background image
                       Container(
-                        width: 140,
-                        height: 140,
+                        width: 120,
+                        height: 120,
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/img/${achievement.imagePath}"),

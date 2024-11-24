@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
     _eventsFuture = _loadEvents();
     _challengesFuture = _loadChallenges();
     listenToChangeOfCategories();
+    listenToChangeOfUserProgress();
   }
 
   @override
