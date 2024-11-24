@@ -30,7 +30,7 @@ class EventDetailPage extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(
                   "${event.time.day}.${event.time.month}.${event.time.year} at ${event.time.hour}:${event.time.minute.toString().padLeft(2, '0')}",
-                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[400]),
                 ),
               ],
             ),
@@ -43,7 +43,7 @@ class EventDetailPage extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(
                   event.place.toString(),
-                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[400]),
                 ),
               ],
             ),
@@ -52,7 +52,7 @@ class EventDetailPage extends StatelessWidget {
             // Participants
             Text(
               "Participants: ${event.numParticipants} ${event.maxParticipants > 0 ? '(max: ${event.maxParticipants})' : ''}",
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              style: TextStyle(fontSize: 16, color: Colors.grey[400]),
             ),
             SizedBox(height: 16),
 
@@ -67,8 +67,12 @@ class EventDetailPage extends StatelessWidget {
                 spacing: 8,
                 children: event.tags.map((tag) {
                   return Chip(
-                    label: Text(tag),
-                    backgroundColor: Colors.blue[100],
+                    label: Text(
+                      tag,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.orange,
+                    side: BorderSide.none,
                   );
                 }).toList(),
               ),
@@ -83,7 +87,7 @@ class EventDetailPage extends StatelessWidget {
             SizedBox(height: 8),
             Text(
               event.description,
-              style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+              style: TextStyle(fontSize: 16, color: Colors.grey[400]),
             ),
             SizedBox(height: 16),
             Text(
