@@ -73,7 +73,6 @@ class EventDetailPage extends StatelessWidget {
                     ),
                     backgroundColor: Colors.orange,
                     side: BorderSide.none,
-                    label: Text(tag, style: const TextStyle(color: Colors.white),),
                   );
                 }).toList(),
               ),
