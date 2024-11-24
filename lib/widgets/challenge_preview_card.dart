@@ -1,49 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:socialize/models/challenge.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
+import '../helper/pair.dart';
 import 'preview_card.dart';
 import 'package:socialize/pages/progress_challenges_page.dart';
 import 'package:socialize/pages/reoccuring_challenges_page.dart';
 
 class ChallengePreviewCard extends StatelessWidget {
-  final List<Challenge> challenges;
+  final List<Pair<Challenge, int?>> challenges;
   final double width;
   final double height;
-  final bool progressTrue;
+  final ChallengeType challengeType;
+  final String title;
 
   const ChallengePreviewCard({
     Key? key,
     required this.challenges,
     required this.width,
     required this.height,
-    required this.progressTrue,
+    required this.challengeType,
+    required  this.title,
   }) : super(key: key);
 
-  List<Challenge> getFilteredChallenges() {
+  List<Pair<Challenge, int?>> getFilteredChallenges() {
     return challenges.where((challenge) {
-      if (progressTrue) {
-        return challenge.type == Type.PROGRESS;
-      } else {
-        return challenge.type != Type.PROGRESS;
-      }
+      return challenge.a.type == challengeType;
     }).toList();
   }
 
-  Challenge? getNextChallenge() {
+  Map<ChallengeType, String> getChallengeTypeTimeLeft() => <ChallengeType, String> {
+      ChallengeType.MONTHLY: "3 days left",
+      ChallengeType.WEEKLY: "7 hours left"
+    };
+
+  Pair<Challenge, int?>? getNextChallenge() {
     final filteredChallenges = getFilteredChallenges();
     if (filteredChallenges.isEmpty) return null;
-    return filteredChallenges.first;
+    return filteredChallenges.firstWhere((ch) => ch.b != null);
   }
 
   @override
   Widget build(BuildContext context) {
     final nextChallenge = getNextChallenge();
-    final destinationPage = progressTrue
+    final destinationPage = challengeType == ChallengeType.PROGRESS
         ? ProgressChallengesPage(challenges: getFilteredChallenges())
-        : ReoccurringChallengesPage(challenges: getFilteredChallenges());
+        : ReoccurringChallengesPage(challenges: challenges.where((ch) => ch.a.type != ChallengeType.PROGRESS).toList());
 
     return PreviewCard(
       width: width,
-      height: height,
+      height: challengeType == ChallengeType.PROGRESS ? height - 30 : height,
       destinationPage: destinationPage,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,11 +57,11 @@ class ChallengePreviewCard extends StatelessWidget {
                 children: [
                   Icon(Icons.keyboard_double_arrow_up),
                   SizedBox(width: 30),
-                  Column(
+                  Expanded(child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Next Challenge',
+                        title,
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 14,
@@ -64,7 +69,7 @@ class ChallengePreviewCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        nextChallenge.title,
+                        nextChallenge.a.title,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -74,23 +79,28 @@ class ChallengePreviewCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        nextChallenge.text,
+                        nextChallenge.a.text,
                         style: const TextStyle(fontSize: 16),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const Spacer(),
-                      Text(
-                        'Max Progress: ${nextChallenge.maxProgress}',
-                        style: TextStyle(color: Colors.grey[400]),
-                      ),
                       const SizedBox(height: 16),
-                      Text(
-                        'Type: ${nextChallenge.type.name}',
-                        style: TextStyle(color: Colors.grey[400]),
+                      StepProgressIndicator(
+                        totalSteps: getNextChallenge()?.a.maxProgress ?? 0,
+                        currentStep: getNextChallenge()?.b ?? 0,
+                        selectedColor: Colors.tealAccent,
+                        unselectedColor: Colors.grey,
+                        size: 10,
                       ),
+                      if (nextChallenge.a.type != ChallengeType.PROGRESS)
+                        const SizedBox(height: 16),
+                      if (nextChallenge.a.type != ChallengeType.PROGRESS)
+                        Text(
+                            getChallengeTypeTimeLeft()[nextChallenge.a.type] ?? "",
+                            style: TextStyle(color: Colors.grey[400]),
+                        ),
                     ],
-                  )
+                  ))
                 ],
               )
             : const Center(

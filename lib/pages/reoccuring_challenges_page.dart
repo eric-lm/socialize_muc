@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../helper/pair.dart';
 import '../models/challenge.dart';
 
 class ReoccurringChallengesPage extends StatelessWidget {
-  final List<Challenge> challenges;
+  final List<Pair<Challenge, int?>> challenges;
 
   const ReoccurringChallengesPage({
     super.key,
@@ -12,7 +13,7 @@ class ReoccurringChallengesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reoccurringChallenges = challenges
-        .where((c) => c.type == Type.WEEKLY || c.type == Type.MONTHLY)
+        .where((c) => c.a.type == ChallengeType.WEEKLY || c.a.type == ChallengeType.MONTHLY)
         .toList();
 
     return Scaffold(
@@ -48,9 +49,9 @@ class ReoccurringChallengesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildChallengeCard(Challenge challenge) {
+  Widget _buildChallengeCard(Pair<Challenge, int?> challenge) {
     Color iconColor =
-        challenge.type == Type.WEEKLY ? Colors.blue : Colors.green;
+        challenge.a.type == ChallengeType.WEEKLY ? Colors.blue : Colors.green;
 
     return Card(
       elevation: 4,
@@ -84,7 +85,7 @@ class ReoccurringChallengesPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
-                      challenge.type == Type.WEEKLY
+                      challenge.a.type == ChallengeType.WEEKLY
                           ? Icons.event
                           : Icons.calendar_month,
                       color: iconColor,
@@ -97,14 +98,14 @@ class ReoccurringChallengesPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          challenge.title,
+                          challenge.a.title,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
                         Text(
-                          challenge.type.name,
+                          challenge.a.type.name,
                           style: TextStyle(
                             color: iconColor,
                             fontSize: 12,
@@ -116,7 +117,7 @@ class ReoccurringChallengesPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Text(challenge.text),
+              Text(challenge.a.text),
               const SizedBox(height: 16),
               LinearProgressIndicator(
                 value: 0, // TODO: Use ChallengeProgress

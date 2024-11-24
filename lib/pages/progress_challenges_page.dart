@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../helper/pair.dart';
 import '../models/challenge.dart';
 
 class PathPainter extends CustomPainter {
@@ -21,7 +22,7 @@ class PathPainter extends CustomPainter {
 }
 
 class ProgressChallengesPage extends StatelessWidget {
-  final List<Challenge> challenges;
+  final List<Pair<Challenge, int?>> challenges;
 
   const ProgressChallengesPage({
     super.key,
@@ -32,7 +33,7 @@ class ProgressChallengesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Filter only progress challenges
     final progressChallenges =
-        challenges.where((c) => c.type == Type.PROGRESS).toList();
+        challenges.where((c) => c.a.type == ChallengeType.PROGRESS).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -55,7 +56,7 @@ class ProgressChallengesPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: _buildChallengeTimeline(context, progressChallenges),
+                child: _buildChallengeTimeline(context, progressChallenges.map((ch) => ch.a).toList()),
               ),
             ],
           ),
@@ -168,9 +169,9 @@ class ProgressChallengesPage extends StatelessWidget {
   }
 
   Widget _buildChallengeCard(Challenge challenge) {
-    Color iconColor = challenge.type == Type.WEEKLY
+    Color iconColor = challenge.type == ChallengeType.WEEKLY
         ? Colors.blue
-        : challenge.type == Type.MONTHLY
+        : challenge.type == ChallengeType.MONTHLY
             ? Colors.green
             : Colors.amber;
 
@@ -239,13 +240,13 @@ class ProgressChallengesPage extends StatelessWidget {
     );
   }
 
-  IconData _getChallengeTypeIcon(Type type) {
+  IconData _getChallengeTypeIcon(ChallengeType type) {
     switch (type) {
-      case Type.WEEKLY:
+      case ChallengeType.WEEKLY:
         return Icons.event;
-      case Type.MONTHLY:
+      case ChallengeType.MONTHLY:
         return Icons.calendar_month;
-      case Type.PROGRESS:
+      case ChallengeType.PROGRESS:
         return Icons.trending_up;
     }
   }

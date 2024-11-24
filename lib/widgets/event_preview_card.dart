@@ -100,7 +100,7 @@ class EventPreviewCard extends StatelessWidget {
               )
             : const Center(
                 child: Text(
-                  'No challenges available',
+                  'No events available',
                   style: TextStyle(
                     fontSize: 18,
                     fontStyle: FontStyle.italic,
