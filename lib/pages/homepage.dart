@@ -6,6 +6,8 @@ import 'package:socialize/widgets/event_preview_card.dart';
 import 'package:socialize/widgets/challenge_preview_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../helper/pair.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({super.key, required this.challenges});
 
@@ -21,11 +23,13 @@ class _HomePageState extends State<HomePage> {
   int _currentPage = 0;
 
   late Future<List<Event>> _eventsFuture;
+  late Future<List<Pair<Challenge, int?>>> _challengesFuture;
 
   @override
   void initState() {
     super.initState();
     _eventsFuture = _loadEvents();
+    _challengesFuture = _loadChallenges();
     listenToChangeOfCategories();
   }
 
@@ -41,11 +45,29 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _refreshChallenges() {
+    setState(() {
+      _challengesFuture = _loadChallenges();
+    });
+  }
+
   listenToChangeOfCategories() {
     final collection = FirebaseFirestore.instance.collection('event');
     final listener = collection.snapshots().listen((change) {
       if (change.docChanges.isNotEmpty) {
         return _refreshEvents();
+      }
+    });
+    listener.onDone(() {
+      listener.cancel();
+    });
+  }
+
+  listenToChangeOfUserProgress() {
+    final collection = FirebaseFirestore.instance.collection('user/${FirebaseAuth.instance.currentUser?.uid}/private');
+    final listener = collection.snapshots().listen((change) {
+      if (change.docChanges.isNotEmpty) {
+        return _refreshChallenges();
       }
     });
     listener.onDone(() {
@@ -91,21 +113,81 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: ChallengePreviewCard(
-                    challenges: widget.challenges,
-                    width: constraints.maxWidth,
-                    height: 200,
-                    progressTrue: true,
-                  ),
+                  child: FutureBuilder(
+                      future: _challengesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text("Error: ${snapshot.error}"));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(child: Text("No challenges found"));
+                        } else {
+                          return ChallengePreviewCard(
+                            title: "Next Progress Challenge",
+                            challenges: snapshot.data!,
+                            width: constraints.maxWidth,
+                            height: 200,
+                            challengeType: ChallengeType.PROGRESS,
+                          );
+                        }
+                      }),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: ChallengePreviewCard(
-                    challenges: widget.challenges,
-                    width: constraints.maxWidth,
-                    height: 200,
-                    progressTrue: false,
-                  ),
+                  child: FutureBuilder(
+                      future: _challengesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text("Error: ${snapshot.error}"));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(child: Text("No challenges found"));
+                        } else {
+                          return ChallengePreviewCard(
+                            title: "Next Weekly Challenge",
+                            challenges: snapshot.data!,
+                            width: constraints.maxWidth,
+                            height: 200,
+                            challengeType: ChallengeType.WEEKLY,
+                          );
+                        }
+                      }),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: FutureBuilder(
+                      future: _challengesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text("Error: ${snapshot.error}"));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(child: Text("No challenges found"));
+                        } else {
+                          return ChallengePreviewCard(
+                            title: "Next Monthly Challenge",
+                            challenges: snapshot.data!,
+                            width: constraints.maxWidth,
+                            height: 200,
+                            challengeType: ChallengeType.MONTHLY,
+                          );
+                        }
+                      }),
                 ),
                 // Add other widgets here
               ],
@@ -119,7 +201,7 @@ class _HomePageState extends State<HomePage> {
   Future<List<Event>> _loadEvents() async {
     try {
       var eventSnapshot =
-          await FirebaseFirestore.instance.collection('event').get();
+      await FirebaseFirestore.instance.collection('event').get();
       List<Event> events = eventSnapshot.docs
           .map((doc) => Event.fromFirestore(doc, null))
           .toList();
@@ -130,6 +212,25 @@ class _HomePageState extends State<HomePage> {
       print("Error loading events: $e");
       return List.empty();
     }
+  }
+
+  Future<List<Pair<Challenge, int?>>> _loadChallenges() async {
+    final myChallenges = await FirebaseFirestore.instance
+        .collection('user/${FirebaseAuth.instance.currentUser!.uid}/private')
+        .doc("progress")
+        .get();
+    if (!myChallenges.exists) {
+      return [];
+    }
+
+    List<Pair<Challenge, int?>> challenges = [];
+    for (var progress in myChallenges.data()?["challenge_progress"]?? []) {
+      DocumentReference<Map<String, dynamic>> chRef = progress["challenge"];
+      Challenge ch = Challenge.fromFirestore(await chRef.get(), null);
+      challenges.add(Pair<Challenge, int?>(ch, progress["progress"]));
+    }
+
+    return challenges;
   }
 }
 

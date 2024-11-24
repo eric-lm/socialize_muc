@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum Type { WEEKLY, MONTHLY, PROGRESS }
+enum ChallengeType { WEEKLY, MONTHLY, PROGRESS }
 
 class Challenge {
   final String id;
@@ -8,7 +8,7 @@ class Challenge {
   final String text;
   final int maxProgress;
   final bool isUserCompletable;
-  final Type type;
+  final ChallengeType type;
   final int? level;
 
   Challenge({
@@ -39,7 +39,7 @@ class Challenge {
         text: data['text'] ?? 'No description',
         maxProgress: data['max_progress'] ?? 0,
         isUserCompletable: data['is_user_completable'] ?? false,
-        type: Type.values.byName(data['type'] ?? 'WEEKLY'),
+        type: ChallengeType.values.byName(data['type'] ?? 'WEEKLY'),
         level: data['level'],
       );
     } catch (e) {

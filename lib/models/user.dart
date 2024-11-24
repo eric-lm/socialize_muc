@@ -55,7 +55,7 @@ class User {
               text: '',
               maxProgress: 0,
               isUserCompletable: true,
-              type: Type.WEEKLY,
+              type: ChallengeType.WEEKLY,
             ),
             progress: item['progress'] ?? 0,
             currentStreak: item['current_streak'] ?? 0,
