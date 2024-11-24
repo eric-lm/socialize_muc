@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
 import '../helper/pair.dart';
 import '../models/challenge.dart';
 import 'dart:math' show min;
@@ -72,11 +72,9 @@ class ProgressChallengesPage extends StatelessWidget {
             final challenge = challenges[index];
             return Row(
               children: [
-                const SizedBox(width: 16),
                 Expanded(
                   child: _buildChallengeCard(challenge),
                 ),
-                const SizedBox(width: 16),
               ],
             );
           },
@@ -85,43 +83,8 @@ class ProgressChallengesPage extends StatelessWidget {
     );
   }
 
-  Future<double> _getChallengeProgress(String challengeId) async {
-    try {
-      final userId = FirebaseAuth.instance.currentUser!.uid;
-
-      final docRef = FirebaseFirestore.instance
-          .collection('user')
-          .doc(userId)
-          .collection('private')
-          .doc("progress");
-
-      final doc = await docRef.get();
-      if (!doc.exists || doc.data() == null) return 0.0;
-
-      // Get the array of challenges
-      final List<dynamic> challengeProgress =
-          doc.data()?['challenge_progress'] ?? [];
-
-      // Find the matching challenge
-      final matchingProgress = challengeProgress.firstWhere(
-        (progress) =>
-            (progress['challenge'] as DocumentReference).id == challengeId,
-        orElse: () => null,
-      );
-
-      if (matchingProgress == null) return 0.0;
-
-      // Get progress value and convert to double
-      final progress = matchingProgress['progress'] as num?;
-      return (progress ?? 0).toDouble(); // Explicit conversion to double
-    } catch (e) {
-      print('ERROR: Error fetching progress: $e');
-      return 0.0;
-    }
-  }
-
   Future<bool> _updateChallengeProgressFunction(
-      String challengeId, double progress) async {
+      String challengeId, int progress) async {
     try {
       // Debug print before call
       print('Attempting to call userChallengeUpdate with:');
@@ -161,11 +124,11 @@ class ProgressChallengesPage extends StatelessWidget {
   Future<void> _incrementChallengeProgress(
       String challengeId, Challenge challenge) async {
     try {
-      double currentProgress = await _getChallengeProgress(challengeId);
+      var currentProgress = challenges.firstWhere((ch) => ch.a.id == challengeId).b ?? 0;
       print('maxProgress: ${challenge.maxProgress}');
       if (currentProgress >= challenge.maxProgress) return;
 
-      double newProgress = min((currentProgress + 1), 1.0);
+      var newProgress = min((currentProgress + 1), 1);
       final success =
           await _updateChallengeProgressFunction(challengeId, newProgress);
 
@@ -179,19 +142,6 @@ class ProgressChallengesPage extends StatelessWidget {
     }
   }
 
-  Future<void> _setChallengeProgress(
-      String challengeId, double progress) async {
-    try {
-      final success =
-          await _updateChallengeProgressFunction(challengeId, progress);
-      if (!success) {
-        print('ERROR: Failed to set challenge progress');
-      }
-    } catch (e) {
-      print('ERROR: Error setting progress: $e');
-    }
-  }
-
   Widget _buildChallengeCard(Pair<Challenge, int?> challenge) {
     Color iconColor = challenge.a.type == ChallengeType.WEEKLY
         ? Colors.blue
@@ -201,7 +151,7 @@ class ProgressChallengesPage extends StatelessWidget {
 
     return Card(
       elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -213,7 +163,7 @@ class ProgressChallengesPage extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               iconColor.withOpacity(0.1),
-              Colors.white,
+              iconColor.withOpacity(0.4),
             ],
           ),
         ),
@@ -246,51 +196,36 @@ class ProgressChallengesPage extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      constraints: const BoxConstraints(),
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.add,
-                        color: iconColor,
-                        size: 24,
+                  if (challenge.a.isUserCompletable && (challenge.b ?? 0) < challenge.a.maxProgress)
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      onPressed: () =>
-                          _incrementChallengeProgress(challenge.a.id, challenge.a),
+                      child: IconButton(
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          Icons.check_circle,
+                          color: iconColor,
+                          size: 24,
+                        ),
+                        onPressed: () =>
+                            _incrementChallengeProgress(challenge.a.id, challenge.a),
+                      ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 16),
               Text(challenge.a.text),
               const SizedBox(height: 16),
-              FutureBuilder<double>(
-                future: _getChallengeProgress(challenge.a.id),
-                builder: (context, snapshot) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LinearProgressIndicator(
-                        value: snapshot.data ?? 0.0,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(iconColor),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${((snapshot.data ?? 0.0) * 100).toInt()}% Complete',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  );
-                },
+              StepProgressIndicator(
+                currentStep: challenge.b ?? 0,
+                totalSteps: challenge.a.maxProgress,
+                selectedColor: Colors.tealAccent,
+                unselectedColor: Colors.grey,
+                size: 10,
               ),
             ],
           ),

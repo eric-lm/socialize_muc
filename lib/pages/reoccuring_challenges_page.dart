@@ -67,7 +67,7 @@ class ReoccurringChallengesPage extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               iconColor.withOpacity(0.1),
-              Colors.white,
+              iconColor.withOpacity(0.4),
             ],
           ),
         ),
