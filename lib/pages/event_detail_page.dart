@@ -67,8 +67,8 @@ class EventDetailPage extends StatelessWidget {
                 spacing: 8,
                 children: event.tags.map((tag) {
                   return Chip(
-                    label: Text(tag),
-                    backgroundColor: Colors.blue[100],
+                    label: Text(tag, style: const TextStyle(color: Colors.white),),
+                    backgroundColor: Colors.orange,
                   );
                 }).toList(),
               ),
