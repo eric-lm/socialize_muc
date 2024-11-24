@@ -14,9 +14,10 @@ class PathPainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
+    // Draw line on the left side
     final path = Path()
-      ..moveTo(size.width / 2, 0)
-      ..lineTo(size.width / 2, size.height);
+      ..moveTo(0, 0)
+      ..lineTo(0, size.height);
 
     canvas.drawPath(path, paint);
   }
@@ -62,7 +63,6 @@ class ProgressChallengesPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
               const SizedBox(height: 24),
               const Text(
                 'Your Social Journey',
@@ -82,61 +82,13 @@ class ProgressChallengesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            const CircleAvatar(
-              radius: 24,
-              backgroundImage: NetworkImage('https://via.placeholder.com/50'),
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Welcome back!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Level 1 Socializer',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Row(
-          children: const [
-            Icon(Icons.star, color: Colors.amber, size: 20),
-            SizedBox(width: 8),
-            Text(
-              '1250 points',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   Widget _buildChallengeTimeline(
       BuildContext context, List<Challenge> challenges) {
     return Stack(
       children: [
         CustomPaint(
           size: Size(MediaQuery.of(context).size.width,
-              MediaQuery.of(context).size.height * 0.8),
+              MediaQuery.of(context).size.height),
           painter: PathPainter(),
         ),
         ListView.builder(
@@ -146,12 +98,8 @@ class ProgressChallengesPage extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (index % 2 == 0)
-                    Expanded(child: _buildChallengeCard(challenge))
-                  else
-                    Expanded(child: Container()),
                   Container(
                     width: 20,
                     height: 20,
@@ -172,10 +120,10 @@ class ProgressChallengesPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (index % 2 == 0)
-                    Expanded(child: Container())
-                  else
-                    Expanded(child: _buildChallengeCard(challenge)),
+                  const SizedBox(
+                      width:
+                          16), // Add some spacing between the circle and the card
+                  Expanded(child: _buildChallengeCard(challenge)),
                 ],
               ),
             );
@@ -321,7 +269,6 @@ class ProgressChallengesPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
