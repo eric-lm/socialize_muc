@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:socialize/models/challenge.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import '../helper/pair.dart';
-import 'preview_card.dart';
 import 'package:socialize/pages/progress_challenges_page.dart';
 import 'package:socialize/pages/reoccuring_challenges_page.dart';
+
+import '../pages/widgets/preview_card.dart';
 
 class ChallengePreviewCard extends StatelessWidget {
   final List<Pair<Challenge, int?>> challenges;
