@@ -6,26 +6,6 @@ import '../app/app_active_user.dart';
 import 'dart:math' show min;
 import 'package:cloud_functions/cloud_functions.dart' as functions;
 
-class PathPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.3)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    // Draw line on the left side
-    final path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(0, size.height);
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
 class ProgressChallengesPage extends StatelessWidget {
   final List<Challenge> challenges;
 
@@ -86,46 +66,18 @@ class ProgressChallengesPage extends StatelessWidget {
       BuildContext context, List<Challenge> challenges) {
     return Stack(
       children: [
-        CustomPaint(
-          size: Size(MediaQuery.of(context).size.width,
-              MediaQuery.of(context).size.height),
-          painter: PathPainter(),
-        ),
         ListView.builder(
           itemCount: challenges.length,
           itemBuilder: (context, index) {
             final challenge = challenges[index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 3,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                      width:
-                          16), // Add some spacing between the circle and the card
-                  Expanded(child: _buildChallengeCard(challenge)),
-                ],
-              ),
+            return Row(
+              children: [
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildChallengeCard(challenge),
+                ),
+                const SizedBox(width: 16),
+              ],
             );
           },
         ),
@@ -135,6 +87,7 @@ class ProgressChallengesPage extends StatelessWidget {
 
   Future<double> _getChallengeProgress(String challengeId) async {
     try {
+      print("hello");
       final userId = AppActiveUser.instance.userId;
       if (userId == null) return 0.0;
 
@@ -292,7 +245,6 @@ class ProgressChallengesPage extends StatelessWidget {
                         challenge.title,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      _buildDifficultyBadge(challenge.type.name),
                     ],
                   ),
                   const Spacer(),
@@ -358,37 +310,5 @@ class ProgressChallengesPage extends StatelessWidget {
       case Type.PROGRESS:
         return Icons.trending_up;
     }
-  }
-
-  Widget _buildDifficultyBadge(String difficulty) {
-    Color color;
-    switch (difficulty) {
-      case 'Easy':
-        color = Colors.green;
-        break;
-      case 'Medium':
-        color = Colors.orange;
-        break;
-      case 'Hard':
-        color = Colors.red;
-        break;
-      default:
-        color = Colors.grey;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        difficulty,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-        ),
-      ),
-    );
   }
 }
